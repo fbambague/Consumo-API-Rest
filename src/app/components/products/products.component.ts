@@ -1,5 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { CreateProductDTO } from 'src/app/dto/createProductDTO.model';
+import { UpdateProductDTO } from 'src/app/dto/updateProductDTO.model';
 import { Product } from 'src/app/models/product.model';
 import { ProductsService } from 'src/app/services/products.service';
 import { StoreService } from 'src/app/services/store.service';
@@ -17,7 +19,11 @@ export class ProductsComponent implements OnInit {
   today= new Date();
   date= new Date(2022,5,5);
   showProductDetail = false;
-  product!: Product;
+  productChosen!: Product;
+  createProductDTO!: CreateProductDTO;
+  updateProductDTO!: UpdateProductDTO;
+  limit: number = 10;
+  offset: number = 0;
 
   products: Product [] = [
    /* {
@@ -50,11 +56,25 @@ export class ProductsComponent implements OnInit {
 
   ngOnInit(): void {
     this.myShoppingCart = this.storeService.getMyShoppingCart();
-    this.getAllProducts();
+    //this.getAllProducts();
+    this.getAllProductsByPages();
   }
 
   getAllProducts(){
     this.productService.getAllProducts().subscribe(
+      (response: Product[]) =>{
+        console.log(response);
+        this.products = response;
+      },
+      (error: HttpErrorResponse)=>{
+        alert(error.message);
+      }
+    );
+  }
+
+  getAllProductsByPages(){
+    this.offset += 10;
+    this.productService.getProductsByPage(this.limit, this.offset).subscribe(
       (response: Product[]) =>{
         console.log(response);
         this.products = response;
@@ -83,10 +103,53 @@ export class ProductsComponent implements OnInit {
   onShowDetail(id: number){
     this.productService.getProduct(id).subscribe(
       (response: Product)=>{
-        this.product = response;
+        this.toggleProductDetail();
+        this.productChosen = response;
       },
       (error: HttpErrorResponse)=>{
         alert(error.message)
+      }
+    );
+  }
+
+  createProduct(){
+    // Crear formulario para añadir producto, enviarlo como $event y llamar a API
+    this.productService.createProduct(this.createProductDTO).subscribe(
+      (response: Product)=>{
+        console.log('Create: ', response);
+        this.getAllProducts();
+      },
+      (error: HttpErrorResponse)=>{
+        alert(error.message);
+      }
+    );
+  }
+
+  updateProduct(){
+    // Crear formulario para actualizar producto, enviarlo como $event y llamar a API
+    //Se puede usar productchosen
+    const id = this.productChosen.id;
+    this.productService.updateProduct(id,this.updateProductDTO).subscribe(
+      (response: Product) =>{
+        console.log('Update: ', response);
+        this.getAllProducts();
+      },
+      (error: HttpErrorResponse)=>{
+        alert(error.message);
+      }
+    );
+  }
+
+  deleteProduct(){
+    const id = this.productChosen.id;
+    this.productService.deleteProduct(id).subscribe(
+      (response: boolean)=>{
+        console.log(response);
+        this.getAllProducts();
+        this.showProductDetail = false;
+      },
+      (error: HttpErrorResponse)=>{
+        alert(error.message);
       }
     );
   }

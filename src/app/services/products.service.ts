@@ -8,10 +8,18 @@ import { Product } from '../models/product.model';
 })
 export class ProductsService {
 
+  private apiUrl = 'https://young-sands-07814.herokuapp.com/api/products';
+
   constructor(private httClient: HttpClient) { }
 
   getAllProducts():Observable<Product[]>{
-    console.log('https://fakestoreapi.com/products');
-    return this.httClient.get<Product[]>('https://fakestoreapi.com/products');
+    console.log(this.apiUrl);
+    //return this.httClient.get<Product[]>('https://fakestoreapi.com/products');
+    return this.httClient.get<Product[]>(this.apiUrl);
+  }
+
+  getProduct(id: number):Observable<Product>{
+    console.log(`${this.apiUrl}/${id}`);
+    return this.httClient.get<Product>(`${this.apiUrl}/${id}`);
   }
 }

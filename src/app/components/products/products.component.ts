@@ -16,6 +16,8 @@ export class ProductsComponent implements OnInit {
   total: number = 0;
   today= new Date();
   date= new Date(2022,5,5);
+  showProductDetail = false;
+  product!: Product;
 
   products: Product [] = [
    /* {
@@ -74,6 +76,20 @@ export class ProductsComponent implements OnInit {
     this.total = this.storeService.getTotal();
   }
 
+  toggleProductDetail(){
+    this.showProductDetail = !this.showProductDetail;
+  }
+
+  onShowDetail(id: number){
+    this.productService.getProduct(id).subscribe(
+      (response: Product)=>{
+        this.product = response;
+      },
+      (error: HttpErrorResponse)=>{
+        alert(error.message)
+      }
+    );
+  }
 
 
 }

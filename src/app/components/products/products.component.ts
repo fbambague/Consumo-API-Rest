@@ -24,6 +24,7 @@ export class ProductsComponent implements OnInit {
   updateProductDTO!: UpdateProductDTO;
   limit: number = 10;
   offset: number = 0;
+  statusDetail: 'loading' | 'success' | 'error' | 'init' = 'init';
 
   products: Product [] = [
    /* {
@@ -61,13 +62,16 @@ export class ProductsComponent implements OnInit {
   }
 
   getAllProducts(){
+    this.statusDetail = 'loading';
     this.productService.getAllProducts().subscribe(
       (response: Product[]) =>{
         console.log(response);
         this.products = response;
+        this.statusDetail = 'success';
       },
       (error: HttpErrorResponse)=>{
         alert(error.message);
+        this.statusDetail = 'error';
       }
     );
   }

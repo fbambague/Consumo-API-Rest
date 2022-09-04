@@ -1,9 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { map, Observable, of, retry } from 'rxjs';
 import { CreateProductDTO } from '../dto/createProductDTO.model';
 import { UpdateProductDTO } from '../dto/updateProductDTO.model';
 import { Product } from '../models/product.model';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ import { Product } from '../models/product.model';
 export class ProductsService {
 
   //private apiUrl = 'https://young-sands-07814.herokuapp.com/api/products';
-  private apiUrl = '/api/products';
+  //private apiUrl = '/api/products'; //=> Configuración con el proxy
+  private apiUrl = `${environment.API_URL}/api/products`;
 
   constructor(private httClient: HttpClient) { }
 
@@ -19,7 +21,16 @@ export class ProductsService {
   getAllProducts():Observable<Product[]>{
     console.log(this.apiUrl);
     //return this.httClient.get<Product[]>('https://fakestoreapi.com/products');
-    return this.httClient.get<Product[]>(this.apiUrl);
+    return this.httClient.get<Product[]>(this.apiUrl)
+      .pipe(
+        retry(3), //intentarlo 3 veces por si algo falla
+        map(products => products.map(item => {
+          return {
+            ...item,
+            taxes: .19 * item.price
+          }
+        }))
+      );
   }
 
   /*
@@ -57,7 +68,15 @@ export class ProductsService {
   getProductsByPage(limit: number, offset: number){
     return this.httClient.get<Product[]>(`${this.apiUrl}`,{
       params:{limit, offset}
-    });
+    }).pipe(
+      retry(3), //intentarlo 3 veces por si algo falla
+      map(products => products.map(item => {
+        return {
+          ...item,
+          taxes: .19 * item.price
+        }
+      }))
+    );
   }
 
 }

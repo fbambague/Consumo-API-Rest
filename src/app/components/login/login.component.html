@@ -5,3 +5,11 @@
 <p>
   <a href="./assets/files/texto.txt" download>Descargar</a>
 </p>
+<!-- DESCARGA CON Files.Service -->
+<p>
+  <button (click)="downloadPDF()">Descargar</button>
+</p>
+<p>
+  <input type="file" (change)="onUploap($event)"/>
+  <img *ngIf="imgRta" [src]="imgRta">
+</p>

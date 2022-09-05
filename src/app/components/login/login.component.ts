@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
+import { FilesService } from 'src/app/services/files.service';
 import { UsersService } from 'src/app/services/users.service';
 
 @Component({
@@ -11,9 +12,11 @@ import { UsersService } from 'src/app/services/users.service';
 export class LoginComponent implements OnInit {
 
   token: string = '';
+  imgRta = '';
 
   constructor(private userService: UsersService,
-              private authService: AuthService) { }
+              private authService: AuthService,
+              private filesService: FilesService) { }
 
   ngOnInit(): void {
   }
@@ -50,6 +53,23 @@ export class LoginComponent implements OnInit {
         alert(error.message);
       }
     );
+  }
+
+  downloadPDF(){
+    this.filesService.getFile('my.pdf','./assets/files/texto.txt','application/pdf')
+    .subscribe()
+  }
+
+  onUploap(event: Event){
+    const element = event.target as HTMLInputElement;
+    const file = element.files?.item(0);
+    if(file){
+      this.filesService.uploadFile(file).subscribe(
+        (rta)=>{
+          this.imgRta = rta.location;
+        }
+      );
+    }
   }
 
 }

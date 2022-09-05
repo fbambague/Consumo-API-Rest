@@ -5,6 +5,7 @@ import { CreateProductDTO } from '../dto/createProductDTO.model';
 import { UpdateProductDTO } from '../dto/updateProductDTO.model';
 import { Product } from '../models/product.model';
 import { environment } from '../../environments/environment.prod';
+import { checkTime } from '../interceptors/time.interceptor';
 
 @Injectable({
   providedIn: 'root'
@@ -67,7 +68,8 @@ export class ProductsService {
 
   getProductsByPage(limit: number, offset: number){
     return this.httClient.get<Product[]>(`${this.apiUrl}`,{
-      params:{limit, offset}
+      params:{limit, offset},
+      context: checkTime() // Cada que se desee que alguna petición sea evaluada por TimeInterceptor se debe emviar el contexto sino correría para todas
     }).pipe(
       retry(3), //intentarlo 3 veces por si algo falla
       map(products => products.map(item => {

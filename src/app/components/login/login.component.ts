@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit {
   }
 
   getProfile(){
-    this.authService.profile(this.token).subscribe(
+    this.authService.profile().subscribe(
       (data => {
         console.log(data);
       }),
